@@ -1,0 +1,3 @@
+#Ejemplo:
+owner = "ana-y-luis"
+alert_emails = ["ana@correo.com", "luis@correo.com"]

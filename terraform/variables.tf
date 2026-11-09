@@ -1,0 +1,9 @@
+variable "region" { default = "us-east-1" }
+variable "project" { default = "lakehouse" } # no cambiar: la política IAM usa lakehouse-*
+variable "environment" { default = "dev" }
+variable "owner" { type = string }
+variable "alert_emails" { type = list(string) }
+variable "budget_limit_usd" { default = 5 }
+variable "glue_version" { default = "5.0" }  # si falla Iceberg, pruebe "4.0"
+variable "glue_workers" { default = 2 }      # máximo con autoscaling; 8 en el full
+variable "glue_timeout_min" { default = 15 } # 25 en el full
