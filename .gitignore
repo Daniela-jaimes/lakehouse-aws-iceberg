@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# AWS credentials
+.aws/
+.env
+.env.*
+
+# Terraform 
+*.tfstate
+*.tfstate.*
+.terraform/
+*.tfvars
+!*.tfvars.example
+
+# Datos generados
+data/output/
+*.csv
+*.csv.gz
+*.json.gz
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
