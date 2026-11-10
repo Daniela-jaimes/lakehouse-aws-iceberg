@@ -12,6 +12,10 @@ venv/
 # Terraform 
 *.tfstate
 *.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
 .terraform/
 *.tfvars
 !*.tfvars.example
@@ -31,3 +35,5 @@ data/out*/
 !terraform.tfvars.example
 rootkey.csv
 *accessKeys*.csv
+
+data/.venv311/

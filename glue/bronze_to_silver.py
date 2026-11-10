@@ -78,97 +78,137 @@ def bronze(table):
 # 4. DEDUPLICACION
 # ============================================================
 
+
 def dedupe(df, key, order_col):
+    """Deduplica claves válidas y conserva todas las claves nulas."""
+
+    # Las claves nulas deben llegar completas al control de calidad.
+    sin_clave = df.filter(F.col(key).isNull())
+
+    # Solo se deduplican registros con una clave válida.
+    con_clave = df.filter(F.col(key).isNotNull())
+
     w = (
         Window
         .partitionBy(key)
         .orderBy(F.col(order_col).desc())
     )
 
-    return (
-        df.withColumn("_rn", F.row_number().over(w))
+    deduplicados = (
+        con_clave
+        .withColumn("_rn", F.row_number().over(w))
         .filter("_rn = 1")
         .drop("_rn")
     )
+
+    return deduplicados.unionByName(sin_clave)
 
 
 # ============================================================
 # 5. CONTROL DE CALIDAD
 # ============================================================
 
+
+
 def quality_gate(df, cond, name, max_reject=0.05):
     """Separa validos de rechazados y falla si superan el umbral."""
 
-    df = (
+    cached = (
         df.withColumn("_ok", F.coalesce(cond, F.lit(False)))
         .persist(StorageLevel.MEMORY_AND_DISK)
     )
 
-    total = df.count()
-    bad = df.filter(~F.col("_ok"))
-    n_bad = bad.count()
+    try:
+        total = cached.count()
 
-    print(f"[QUALITY] {name}: total={total} rechazados={n_bad}")
+        bad = cached.filter(~F.col("_ok"))
+        n_bad = bad.count()
 
-    if n_bad:
-        (
-            bad.drop("_ok")
-            .write
-            .mode("append")
-            .parquet(
-                f"s3://{B}/silver/_rejects/{name}/ingest_date={D}/"
+        print(
+            f"[QUALITY] {name}: "
+            f"total={total} rechazados={n_bad}"
+        )
+
+        if n_bad:
+            (
+                bad.drop("_ok")
+                .write
+                .mode("append")
+                .parquet(
+                    f"s3://{B}/silver/_rejects/{name}/ingest_date={D}/"
+                )
             )
+
+        if total and n_bad / total > max_reject:
+            raise Exception(
+                f"Calidad: {name} supera "
+                f"{max_reject:.0%} de rechazos"
+            )
+
+        valid = (
+            cached.filter("_ok")
+            .drop("_ok")
+            .persist(StorageLevel.MEMORY_AND_DISK)
         )
 
-    if total and n_bad / total > max_reject:
-        raise Exception(
-            f"Calidad: {name} supera {max_reject:.0%} de rechazos"
-        )
+        valid.count()
 
-    return df.filter("_ok").drop("_ok")
+        return valid
+
+    except Exception:
+        raise
+
+    finally:
+        cached.unpersist()
 
 
 # ============================================================
 # 6. INSERCION Y ACTUALIZACION EN ICEBERG
 # ============================================================
 
+
+
 def upsert(df, table, key, partition=None):
+    cached_df = df
     full = f"glue_catalog.{args['silver_db']}.{table}"
 
-    df = df.withColumn("_loaded_at", F.current_timestamp())
+    try:
+        df = df.withColumn("_loaded_at", F.current_timestamp())
 
-    if not spark.catalog.tableExists(full):
+        if not spark.catalog.tableExists(full):
 
-        w = (
-            df.writeTo(full)
-            .using("iceberg")
-            .tableProperty("format-version", "2")
-            .tableProperty("write.parquet.compression-codec", "zstd")
-            .option("fanout-enabled", "true")
-        )
+            w = (
+                df.writeTo(full)
+                .using("iceberg")
+                .tableProperty("format-version", "2")
+                .tableProperty("write.parquet.compression-codec", "zstd")
+                .option("fanout-enabled", "true")
+            )
 
-        if partition is not None:
-            w = w.partitionedBy(partition)
+            if partition is not None:
+                w = w.partitionedBy(partition)
 
-        w.create()
+            w.create()
 
-        print(f"[ICEBERG] creada {full}")
+            print(f"[ICEBERG] creada {full}")
 
-    else:
+        else:
 
-        df.createOrReplaceTempView("src")
+            df.createOrReplaceTempView("src")
 
-        spark.sql(f"""
-            MERGE INTO {full} t
-            USING src s
-            ON t.{key} = s.{key}
-            WHEN MATCHED THEN UPDATE SET *
-            WHEN NOT MATCHED THEN INSERT *
-        """)
+            spark.sql(f"""
+                MERGE INTO {full} t
+                USING src s
+                ON t.{key} = s.{key}
+                WHEN MATCHED THEN UPDATE SET *
+                WHEN NOT MATCHED THEN INSERT *
+            """)
 
-        print(f"[ICEBERG] MERGE en {full}")
+            print(f"[ICEBERG] MERGE en {full}")
 
-    spark.catalog.clearCache()
+    finally:
+        cached_df.unpersist()
+
 
 # ============================================================
 # 7. TRANSFORMACION DE CUSTOMERS
