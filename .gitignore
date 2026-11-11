@@ -12,6 +12,10 @@ venv/
 # Terraform 
 *.tfstate
 *.tfstate.*
+*.tfplan
+tfplan
+crash.log
+crash.*.log
 .terraform/
 *.tfvars
 !*.tfvars.example
@@ -25,3 +29,11 @@ data/output/
 # Sistema operativo
 .DS_Store
 Thumbs.db
+*.pyc
+data/out*/
+*.tfstate*
+!terraform.tfvars.example
+rootkey.csv
+*accessKeys*.csv
+
+data/.venv311/
