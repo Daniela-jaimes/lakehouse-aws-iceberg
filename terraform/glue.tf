@@ -56,8 +56,28 @@ resource "aws_s3_object" "job_gold" {
   source = "${path.module}/../jobs/silver_to_gold.py"
   etag   = filemd5("${path.module}/../jobs/silver_to_gold.py")
 }
+data "archive_file" "helpers" {
+  type        = "zip"
+  output_path = "${path.module}/helpers.zip"
+
+  # the zip must contain the folder "helpers/" at its root
+  dynamic "source" {
+    for_each = fileset("${path.module}/../helpers", "*.py")
+    content {
+      content  = file("${path.module}/../helpers/${source.value}")
+      filename = "helpers/${source.value}"
+    }
+  }
+}
+resource "aws_s3_object" "helpers_zip" {
+  bucket = aws_s3_bucket.lake.id
+  key    = "scripts/helpers.zip"
+  source = data.archive_file.helpers.output_path
+  etag   = data.archive_file.helpers.output_md5
+}
 locals {
   glue_args = {
+    "--extra-py-files"          = "s3://${aws_s3_bucket.lake.bucket}/${aws_s3_object.helpers_zip.key}"
     "--datalake-formats"        = "iceberg"
     "--enable-glue-datacatalog" = "true"
     "--enable-auto-scaling"     = "true"
