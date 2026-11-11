@@ -1,39 +1,11 @@
-# Python
-__pycache__/
-*.py[cod]
-.venv/
-venv/
-
-# AWS credentials
-.aws/
-.env
-.env.*
-
-# Terraform 
-*.tfstate
-*.tfstate.*
-*.tfplan
-tfplan
-crash.log
-crash.*.log
 .terraform/
-*.tfvars
-!*.tfvars.example
-
-# Datos generados
-data/output/
-*.csv
-*.csv.gz
-*.json.gz
-
-# Sistema operativo
-.DS_Store
-Thumbs.db
-*.pyc
-data/out*/
 *.tfstate*
+*.tfvars
 !terraform.tfvars.example
-rootkey.csv
-*accessKeys*.csv
-
-data/.venv311/
+tfplan
+helpers.zip
+data/out*/
+.env
+__pycache__/
+*.csv
+!data/sample/*.csv
