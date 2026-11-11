@@ -27,31 +27,34 @@
 ![Terraform IAM: 3 roles y usuario con MFA](./images/8.jpeg)
  
 9 S3 `landing/` con `ingest_date=...` 
-![S3 `landing/` con `ingest_date=...`](./images/.png)
+![S3 `landing/` con `ingest_date=...`](./images/09-landing.png)
 
 10 Crawlers en Succeeded 
-![Crawlers en Succeeded](./images/.png)
+![Crawlers en Succeeded](./images/10_crawlers_de_Bronze.png)
 
 11 Tablas `raw_*` y conteo en Athena 
-![Tablas `raw_*` y conteo en Athena ](./images/.png)
+![Tablas `raw_*` y conteo en Athena ](./images/11-tablas_Bronze.png)
 
 12 Run `bronze-to-silver` en Succeeded (duración, DPU-horas) 
-![Run `bronze-to-silver` en Succeeded](./images/.png)
+![Run `bronze-to-silver` en Succeeded](./images/12-job_silver.png)
 
 13 CloudWatch: líneas `[QUALITY]` 
-![CloudWatch: líneas `[QUALITY]`](./images/.png)
+![CloudWatch: líneas `[QUALITY]`](./images/13-quality-logs.png)
 
 14 `silver/_rejects/` y 5 tablas de silver 
-![`silver/_rejects/` y 5 tablas de silver](./images/.png)
+![`silver/_rejects/` y 5 tablas de silver](./images/14-AWS-tables.png)
+
+14 `silver/_rejects/` y 5 tablas de silver 
+![`silver/_rejects/` y 5 tablas de silver](./images/14-silver.png)
 
 15 Run `silver-to-gold` en Succeeded 
-![Run `silver-to-gold` en Succeeded](./images/.png)
+![Run `silver-to-gold` en Succeeded](./images/15-job-gold.png)
 
 16 7 tablas de gold en Glue 
-![7 tablas de gold en Glue](./images/.png)
+![7 tablas de gold en Glue](./images/16-gold.png)
 
 17 Step Functions: grafo en verde 
-![TStep Functions: grafo en verde](./images/.png)
+![TStep Functions: grafo en verde](./images/17-sfn-ok.png)
 
 18 Conteos antes/después del lote 2  
-![Conteos antes/después del lote 2  ](./images/.png)
+![Conteos antes/después del lote 2  ](./images/18-merge.png)
