@@ -97,11 +97,14 @@ Diccionario completo en la sección 1 de `docs/Guia_Definitiva_Lakehouse_AWS_v2.
 
 Consultas en `sql/04_questions.sql`. Para cada una, completar con la captura:
 
-| Pregunta | Resultado | Interpretación | Tiempo / Data scanned |
-|---|---|---|---|
-| Q1: top 3 departamentos por trimestre | _pendiente_ | _pendiente_ | _pendiente_ |
-| Q2: ventas y ticket por rango de edad | _pendiente_ | _pendiente_ | _pendiente_ |
-| Q3: departamento líder por edad y trimestre (estrella y mart) | _pendiente_ | _pendiente_ | _pendiente_ |
+| Q1: top 3 departamentos por trimestre 
+![Evidencia Q1](docs/evidence/images/29-Q1-full.png)
+
+| Q2: ventas y ticket por rango de edad 
+![Evidencia Q2](docs/evidence/images/30-Q2-full.png)
+
+| Q3: departamento líder por edad y trimestre (estrella y mart) 
+![Evidencia Q3](docs/evidence/images/31.1-Q3-full_joins.png)
 
 ## 9. Upsert, UPDATE, DELETE y time travel
 
@@ -111,9 +114,12 @@ Consultas en `sql/04_questions.sql`. Para cada una, completar con la captura:
 ## 10. Volumen, costos y seguridad
 
 | Medida | Valor |
-|---|---|
-| Filas en `fact_sales` (perfil full) | _pendiente_ |
-| Gasto real de Glue vs presupuesto (5 USD) | _pendiente_ |
+
+| Filas en `fact_sales` (perfil full) 
+![Evidencia fact sales](docs/evidence/images/24-fact-sales.png)
+
+| Gasto real de Glue vs presupuesto (5 USD) 
+![Evidencia gasto real de glue](docs/evidence/images/27-cost_glue.png)
 
 Seguridad: usuario `lakehouse-admin` con MFA y tres roles de mínimo privilegio (crawlers, jobs, Step Functions) definidos
 en Terraform; Budgets con 4 alertas; el CSV de la access key nunca va al repositorio.
